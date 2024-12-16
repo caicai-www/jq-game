@@ -5,14 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         body {
             transition: 1s;
+            font-family: "DotGothic16", sans-serif;
         }
 
         #game {
             width: 700px;
-            height: 70vh;
+            height: 450px;
             border: 1px solid black;
             position: relative;
             box-sizing: border-box;
@@ -40,27 +42,34 @@
         p {
             margin: 0;
         }
+
+        .button {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: red;
+        }
     </style>
 </head>
 
 <body>
-    <input type="button" id="btn-start" value="開始">
+    <input class="button" type="button" id="btn-start" value="開始">
     <br>
-    <p>分數: <span id="text-score">0</span> </p>
-    <p>剩餘時間: <span id="text-time">0</span> </p>
-    <p>最高分玩家: <span id="text-highscore-player">-</span> </p>
-    <p>最高分分數: <span id="text-highscore-score">-</span> </p>
-    <hr>
+
 
     <div id="game">
         <img id="alan" src="./images/alanL.png">
-
     </div>
+
+    <p>スコア: <span id="text-score">0</span> </p>
+    <p>タイム: <span id="text-time">0</span> </p>
+    <p>スコアプレーヤー: <span id="text-highscore-player">-</span> </p>
+    <p>ハイスコア: <span id="text-highscore-score">-</span> </p>
 
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js'
         integrity='sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=='
         crossorigin='anonymous'></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
 
@@ -94,12 +103,31 @@
 
         $(document).keydown(function (event) {
             let position = $('#alan').position();
-            if (event.key === 'ArrowRight' && position.left <= 600) {
+            if (event.key === 'ArrowRight' && position.left <= 595) {
                 moveLeftRight('right');
             } else if (event.key === 'ArrowLeft' && position.left >= 4) {
                 moveLeftRight('left');
             } else if (event.key === 'ArrowUp') {
                 $('#alan').css('bottom', '18%')
+                console.log(position);
+
+                // 得分
+                $('.target').each(function () {
+                    const alanTop = $('#alan').position().top
+                    const alanLeft = $('#alan').position().left
+                    const targetTop = $(this).position().top
+                    const targetLeft = $(this).position().left
+                    console.log('alanTop' + alanTop)
+                    console.log('targetTop' + targetTop)
+                    console.log('alanLeft' + alanLeft)
+                    console.log('targetLeft' + targetLeft)
+
+                    if (Math.abs(alanTop - targetTop) <= 50 && Math.abs(alanLeft - targetLeft) <= 80) { // 高度接近
+                        $(this).remove()
+                        score++;
+                        $('#text-score').text(score);
+                    }
+                })
             }
         })
 
@@ -109,8 +137,8 @@
             }
         })
 
-        if (localStorage.fish) {
-            const data = JSON.parse(localStorage.fish)
+        if (localStorage.alan) {
+            const data = JSON.parse(localStorage.alan)
             highscore.name = data.name
             highscore.score = data.score
             $('#text-highscore-player').text(highscore.name)
@@ -138,7 +166,7 @@
                 $('#text-time').text(timeLeft)
 
                 const random = Math.round(Math.random() * 10)
-                if (random >= 5 && $('.target').length < 1) {
+                if (random >= 1 && $('.target').length < 10) {
                     const left = Math.round(Math.random() * 600) + 'px'
 
                     const target = $(`<img src="./images/ramen.png" class="target" style="left:${left}">`)
@@ -147,47 +175,46 @@
 
                 }
 
-                // 得分
-
-                $('.target').each(function () {
-                    const alanTop = $('#alan').position().top
-                    const alanLeft = $('#alan').position().left
-                    const targetTop = $('.target').position().top;
-                    const targetLeft = $('.target').position().left
-                    console.log('alanTop' + alanTop)
-                    console.log('targetTop' + targetTop)
-                    console.log('alanLeft' + alanLeft)
-                    console.log('targetLeft' + targetLeft)
-
-                    if (Math.abs(alanTop - targetTop) <= 50 && Math.abs(alanLeft - targetLeft) <= 150) { // 高度接近
-                        $(this).remove()
-                        score++;
-                        $('#text-score').text(score);
-                    }
-                }
-                )
-
                 // 時間到
                 if (timeLeft === 0) {
                     clearInterval(timer)
                     $(this).attr('disabled', false)
                     $('#game').empty()
-                }
 
-                if (score > highscore.score) {
-                    const name = prompt('最高分') || '玩家'
-                    highscore.name = name
-                    highscore.score = score
-                    $('#text-highscore-player').text(highscore.name)
-                    $('#text-highscore-score').text(highscore.score)
-                    localStorage.fish = JSON.stringify(highscore)
-                }
+                    if (score > highscore.score) {
 
-                else {
-                    Swal.fire({
-                        title: '時間到',
-                        text: `分數:${score}`
-                    })
+
+                        Swal.fire({
+                            title: '最高分,看來阿嵐很餓',
+                            text: '請輸入玩家名稱',
+                            input: 'text'
+                        }).then(result => {
+                            console.log(result)
+                            const name = result.value || 'あああああ'
+                            highscore.name = name
+                            highscore.score = score
+
+                            $('#text-highscore-player').text(highscore.name)
+                            $('#text-highscore-score').text(highscore.score)
+
+                            // localStorage.setItem(資料名稱, 文字)
+                            // localStorage.資料名稱 = 文字
+                            localStorage.alan = JSON.stringify(highscore)
+                        })
+
+                        // const name = prompt('最高分') || '玩家'
+                        // highscore.name = name
+                        // highscore.score = score
+                        // $('#text-highscore-player').text(highscore.name)
+                        // $('#text-highscore-score').text(highscore.score)
+                        // localStorage.alan = JSON.stringify(highscore)
+                    } else {
+                        Swal.fire({
+                            title: '時間到',
+                            text: `分數:${score}`
+                        })
+                    }
+
                 }
             }, 1000)
         })
