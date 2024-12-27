@@ -6,16 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <!-- 8bit效果音 -->
+    <!-- https://www.springin.org/sound-stock/subcategory/8bit/ -->
     <style>
         body {
             transition: 1s;
             font-family: "DotGothic16", sans-serif;
         }
 
+        .container {
+            width: 100%;
+            position: relative;
+
+        }
+
         #game {
             width: 700px;
             height: 450px;
-            border: 1px solid black;
+            border: 5px inset rgb(230, 230, 230);
             position: relative;
             box-sizing: border-box;
             background: url('./images/bg.jpg');
@@ -32,6 +40,7 @@
             left: 0;
         }
 
+
         .target {
             width: 35px;
             z-index: 1;
@@ -44,27 +53,58 @@
         }
 
         .button {
-            width: 100px;
-            height: 100px;
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
-            background: red;
+            border: 10px dotted blueviolet;
+            position: absolute;
+            top: 30%;
+            left: 0;
+            transform: translate(0, -50%);
+            z-index: 1;
+            font-size: 24px;
+            font-family: "DotGothic16", sans-serif;
+        }
+
+        .text {
+            position: absolute;
+            top: 50%;
+        }
+
+        .button:hover {
+            background: blueviolet;
+            color: white;
+        }
+
+        .info {
+            position: absolute;
+            bottom: 0
         }
     </style>
 </head>
 
 <body>
-    <input class="button" type="button" id="btn-start" value="開始">
-    <br>
+    <div class="container">
 
+        <div>
+            <input class="button" type="button" id="btn-start" value="START!">
+            <div class="text">
+                <p>按鍵盤← → ↑移動 </p>
+            </div>
 
-    <div id="game">
-        <img id="alan" src="./images/alanL.png">
+            <div class="info">
+                <p>SCORE: <span id="text-score">0</span> </p>
+                <p>TIME: <span id="text-time">0</span> </p>
+                <p>HIGHSCORE PLAYER: <span id="text-highscore-player">-</span> </p>
+                <p>HIGHSCORE: <span id="text-highscore-score">-</span> </p>
+            </div>
+        </div>
+
+        <div id="game">
+            <img id="alan" src="./images/alanL.png">
+        </div>
+
     </div>
-
-    <p>スコア: <span id="text-score">0</span> </p>
-    <p>タイム: <span id="text-time">0</span> </p>
-    <p>スコアプレーヤー: <span id="text-highscore-player">-</span> </p>
-    <p>ハイスコア: <span id="text-highscore-score">-</span> </p>
 
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js'
         integrity='sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=='
@@ -72,7 +112,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-
 
         const gameTime = 30
         let score = 0
@@ -160,9 +199,7 @@
 
             // 開始遊戲
             timer = setInterval(function () {
-                // 倒數
                 timeLeft--
-                // 文字要一起改
                 $('#text-time').text(timeLeft)
 
                 const random = Math.round(Math.random() * 10)
@@ -190,24 +227,16 @@
                             input: 'text'
                         }).then(result => {
                             console.log(result)
-                            const name = result.value || 'あああああ'
+                            const name = result.value || '野生的阿嵐'
                             highscore.name = name
                             highscore.score = score
 
                             $('#text-highscore-player').text(highscore.name)
                             $('#text-highscore-score').text(highscore.score)
-
-                            // localStorage.setItem(資料名稱, 文字)
-                            // localStorage.資料名稱 = 文字
                             localStorage.alan = JSON.stringify(highscore)
                         })
 
-                        // const name = prompt('最高分') || '玩家'
-                        // highscore.name = name
-                        // highscore.score = score
-                        // $('#text-highscore-player').text(highscore.name)
-                        // $('#text-highscore-score').text(highscore.score)
-                        // localStorage.alan = JSON.stringify(highscore)
+
                     } else {
                         Swal.fire({
                             title: '時間到',
